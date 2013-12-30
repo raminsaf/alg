@@ -2,28 +2,21 @@ import turtle
 from graph import Graph, Edge, Vert
 
 drawnVerts = {}
-vsize = 20
+VSIZE = 20
 XMAX = 600
 YMAX = 400
 t = turtle.Turtle()
 
-def tree(branchLen,t):
-  if branchLen > 5:
-    t.forward(branchLen)
-    t.right(20)
-    tree(branchLen-15,t)
-    t.left(40)
-    tree(branchLen-15,t)
-    t.right(20)
-    t.backward(branchLen)
-
 def drawVert(vert, x, y):
+  print "Draw ", vert.label, x, y
   if drawnVerts.has_key(vert.label):
+    print "ALREADY DRAWN %s" % str(vert.label)
     return drawnVerts[vert.label]
 
+  t.color("black")
   t.down()
   t.write(str(vert.label), font=("Arial", 18, "bold"))
-  t.circle(vsize)
+  t.circle(VSIZE)
   t.up()
   drawnVerts[vert.label] = x,y
   drawAdjacents(vert, x, y)
@@ -31,44 +24,44 @@ def drawVert(vert, x, y):
 
 def drawAdjacents(u, ux, uy):
   count = len(u.adjacents)
-  vx = ux + vsize*3
-  vy = YMAX/2
+  if count == 0:
+    return
+  toggle = 1
+  vx = ux + VSIZE*6
+  vy = YMAX - VSIZE#count
   for v in u.adjacents.values():
-    vy += YMAX/count
-    drawEdge(u, v, vx, vy)
+    toggle *= -1
+    vy -= 2*YMAX/(count+1)
+    vx += toggle*3*VSIZE
+    x, y = drawEdge(u, v, vx, vy)
+    t.down()
+    t.color("green")
     t.goto(ux, uy)
+    t.color("orange")
+    t.up()
 
 def drawEdge(u, v, x, y):
-  t.down()
-  t.goto(x, y)
-  x,y = drawVert(v, x, y)
+  #t.color("green")
+  #t.down()
   t.up()
+  t.goto(x, y)
+  vx,vy = drawVert(v, x, y)
+  t.up()
+  t.color("blue")
+  t.goto(vx, vy)
+  return x,y
 
 def main():
+  t.up()
   gsize = 10
   myWin = turtle.Screen()
-  myWin.screensize(XMAX, YMAX)
-  #maxx,maxy = myWin.screensize()
-  #print maxx, maxy
-  t.up()
-  #t.setx(0)#maxx/gsize)
-  #t.sety(0)#maxy/2)
-  #t.goto(maxx/gsize - maxx/2, 0)
+  myWin.screensize(XMAX+2*VSIZE, YMAX+2*VSIZE)
   t.goto(-XMAX/2, 0)
   edges = [Edge(1, 2, 1), Edge(1, 3, 2), Edge(2, 4, 2), Edge(3, 4, 1), Edge(4, 5, 1)]
-  edges = [Edge(1, 2, 1), Edge(1, 3, 2), Edge(1, 4, 3), Edge(1, 5, 4)]
+  edges = [Edge(1, 2, 1), Edge(1, 3, 2), Edge(1, 4, 3), Edge(1, 5, 4), Edge(3, 6, 3), Edge(6, 1, -5), Edge(4, 2, -2)]
   g = Graph(edges)
-  drawVert(g.verts[1], -XMAX/2, YMAX)
-  #t.down()
-  #t.circle(vsize)#, -XMAX/2, YMAX)
+  drawVert(g.verts[1], -XMAX/2, VSIZE)
   #t.color("green")
-  #t.circle(vsize)#, -XMAX/2, YMAX)
-  #t.goto(-XMAX/2, YMAX/2)
-  #t.circle(vsize)#, -XMAX/2, YMAX)
-  #drawEdge(g.verts[1], g.verts[2])
-  #t.up()
-  #t.backward(100)
-  #tree(75,t)
   myWin.exitonclick()
 
 main()
